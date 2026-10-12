@@ -1,51 +1,22 @@
 /* Global styles for the Sneeky Softworks website. */
 
-:root {
-  --bg: #14202b;
-  --text: #e9e5d8;
-  --muted: #9aa7b0;
-  --font-sans: system-ui, "Segoe UI", Roboto, sans-serif;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    --bg: #f4f1ea;
-    --text: #2a3560;
-    --muted: #6b7889;
-  }
-}
-
 * {
   box-sizing: border-box;
 }
 
+html,
 body {
   margin: 0;
-  font-family: var(--font-sans);
-  background: var(--bg);
-  color: var(--text);
+  height: 100%;
+  overflow: hidden;
 }
 
 #app {
-  min-height: 100svh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
 }
 
-.landing {
-  text-align: center;
-  padding: 24px;
-}
-
-.landing h1 {
-  font-size: clamp(2.5rem, 8vw, 4rem);
-  letter-spacing: -0.02em;
-  margin: 0 0 16px;
-}
-
-.landing p {
-  color: var(--muted);
-  font-size: 1.125rem;
-  margin: 0;
+canvas {
+  display: block;
 }

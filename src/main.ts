@@ -1,8 +1,13 @@
-// Application bootstrap entry point.
-//
-// The temporary landing page is static HTML in index.html and needs no
-// JavaScript beyond loading global styles. Once the interactive scene exists,
-// this file becomes the single place where scene systems (src/scene) and
-// UI/navigation modules are initialized and mounted into #app.
+// Application bootstrap entry point: wires the ramen-stall scene and the
+// day/night slider into #app. Nothing else bootstrates itself.
 
 import './styles.css'
+import { createRamenScene } from './scene/ramenScene'
+import { createDayNightSlider } from './components/dayNightSlider'
+
+const app = document.getElementById('app')
+if (app === null) throw new Error('Missing #app container')
+
+const scene = createRamenScene(app)
+const slider = createDayNightSlider(1, (t) => scene.setDayNight(t))
+app.appendChild(slider.element)
