@@ -67,7 +67,7 @@ export const DAY_NIGHT_KEYFRAMES: readonly DayNightKeyframe[] = [
     nightFactor: 0,
   },
   {
-    minutes: 1170, // 5:30 PM warm golden hour
+    minutes: 1170, // 7:30 PM warm golden hour
     background: 0xe2a468,
     hemiSky: 0xffcf9e,
     hemiGround: 0x6b5236,

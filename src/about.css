@@ -1,0 +1,148 @@
+.about-page {
+  --studio-gold: #f5c087;
+  --studio-ink: #102b30;
+  background-color: var(--studio-ink);
+  background-image:
+    linear-gradient(90deg, #0e252c66, transparent 46%),
+    linear-gradient(180deg, #0e252c14 56%, #26152b73),
+    url("/assets/images/about-studio-room.webp");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+}
+.about-page .current-page {
+  color: #2c1b23;
+  background: var(--amber);
+  border-color: #ffcc89;
+}
+.about-page .current-page:hover { color: #2c1b23; }
+.about-page h1 { max-width: 17ch; font-size: clamp(2.4rem, 4.3vw, 4.35rem); }
+.about-page .hero-description { max-width: 48ch; }
+.about-page .hero-art img { filter: drop-shadow(0 7px 12px #081b21a0); }
+.studio-neon-logo {
+  position: absolute;
+  left: 61.5%;
+  top: 25%;
+  width: 15%;
+  aspect-ratio: 5 / 3;
+  transform: translate(-50%, -50%);
+  background: #ffe9f4;
+  mask: url("/assets/images/sneekySoftworksLogo.svg") center / contain no-repeat;
+}
+.contact-form button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 5px 12px;
+  border: 2px solid #d6f8a7;
+  border-radius: 10px;
+  background: var(--lime);
+  color: #24291b;
+  font-weight: 750;
+}
+.contact-form button:hover { filter: brightness(1.1); }
+
+.studio {
+  position: relative;
+  margin-top: 12px;
+  padding: 13px 16px 12px;
+  border: 2px solid var(--amber);
+  border-radius: 19px;
+  background: #163237f5;
+}
+.studio > h2 { margin: 0 0 8px; color: var(--amber); font-size: 1.35rem; }
+.studio-grid { display: grid; grid-template-columns: repeat(3, 1fr) 1.04fr; gap: 10px; }
+.studio-card {
+  padding: 12px;
+  border: 2px solid var(--accent);
+  border-radius: 13px;
+  background: linear-gradient(90deg, #281b30 38%, #281b30db 53%, #281b3022 90%),
+    var(--art) right center / auto 100% no-repeat, #281b30;
+}
+.studio-play { --accent: #dc8dea; --art: url("/assets/images/about-play.webp"); }
+.studio-create { --accent: #f38cae; --art: url("/assets/images/about-create.webp"); }
+.studio-connect { --accent: #c4a1ff; --art: url("/assets/images/about-connect.webp"); }
+.studio-card h3 {
+  display: inline-block;
+  margin: 0 0 6px;
+  padding: 2px 9px;
+  border-radius: 12px;
+  color: #2b192b;
+  background: var(--accent);
+}
+.studio-card p { max-width: 21ch; margin: 0; line-height: 1.25; }
+.studio-vibe { align-self: center; transform: rotate(1deg); }
+.studio-vibe h3 { margin: 0 0 5px; }
+.studio-vibe ul { margin: 0; padding: 0; list-style: none; }
+.studio-vibe li::before { content: "✓"; margin-inline-end: 6px; color: #a82460; font-weight: 900; }
+
+.studio-contact {
+  position: relative;
+  display: grid;
+  grid-template-columns: .75fr 1.25fr;
+  gap: 14px 20px;
+  align-items: center;
+  margin-top: 12px;
+  padding: 12px 16px;
+  border: 2px solid var(--studio-gold);
+  border-radius: 16px;
+  background: #17343af5;
+}
+.studio-contact h2 { margin: 0; font-size: clamp(1.3rem, 2vw, 1.8rem); line-height: 1.1; }
+.studio-contact p { margin: 4px 0; }
+.studio-contact a { color: #ffda9e; overflow-wrap: anywhere; }
+.contact-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  gap: 6px 10px;
+  align-items: end;
+}
+.contact-form label { display: grid; gap: 2px; font-size: .84rem; font-weight: 650; }
+.contact-limit { color: #c7ded8; font-size: .75rem; font-weight: 500; }
+.contact-form input, .contact-form textarea {
+  min-width: 0;
+  width: 100%;
+  padding: 5px 8px;
+  border: 1px solid #8fb3b3;
+  border-radius: 7px;
+  color: var(--cream);
+  background: #24464c;
+  font: inherit;
+}
+.contact-form textarea { resize: vertical; }
+.contact-message { grid-column: 1 / 3; }
+.contact-form button { grid-column: 3; grid-row: 2; }
+.contact-form button:disabled { cursor: default; opacity: .55; }
+#studio, #contact { scroll-margin-top: 12px; }
+
+@media (min-width: 761px) {
+  .about-page .games-hero { grid-template-columns: minmax(0, .78fr) minmax(0, 1.22fr); }
+  .about-page .hero-art { transform: translateY(16px); }
+  .about-page .hero-copy { padding-bottom: 13px; }
+}
+
+@media (min-width: 1000px) and (max-height: 1200px) {
+  .about-page .hero-art { width: min(100%, 84svh); }
+  .about-page .hero-description { margin-block: 8px; }
+}
+
+@media (min-width: 1000px) and (max-height: 950px) {
+  .about-page h1 { font-size: clamp(2.4rem, 5.5svh, 3.75rem); }
+  .about-page .arcade-label { margin-bottom: 7px; }
+  .studio, .studio-contact { padding-block: 9px; }
+}
+
+@media (max-width: 1000px) {
+  .studio-grid { grid-template-columns: repeat(2, 1fr); }
+  .studio-contact { grid-template-columns: 1fr; }
+}
+@media (max-width: 760px) {
+  .about-page { background-size: 100% 100%, 100% 100%, auto 100%; }
+}
+@media (max-width: 540px) {
+  .studio-grid, .contact-form { grid-template-columns: 1fr; }
+  .contact-message, .contact-form button { grid-column: auto; grid-row: auto; }
+  .studio-vibe { transform: none; }
+}

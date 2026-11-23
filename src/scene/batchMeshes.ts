@@ -2,14 +2,14 @@ import * as THREE from 'three'
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 
 /** Combine nearby opaque static meshes so they share a draw call. */
-export function batchStaticMeshes(root: THREE.Object3D): void {
+export function batchStaticMeshes(root: THREE.Object3D, interactive: ReadonlySet<THREE.Object3D>): void {
   root.updateWorldMatrix(true, true)
   const worldToRoot = root.matrixWorld.clone().invert()
   const groups = new Map<string, THREE.Mesh[]>()
   const center = new THREE.Vector3()
 
   root.traverseVisible((object) => {
-    if (!(object instanceof THREE.Mesh) || object instanceof THREE.SkinnedMesh ||
+    if (interactive.has(object) || !(object instanceof THREE.Mesh) || object instanceof THREE.SkinnedMesh ||
         object instanceof THREE.InstancedMesh || object.children.length) return
     const geometry: THREE.BufferGeometry = object.geometry
     const { material } = object

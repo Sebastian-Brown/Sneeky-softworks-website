@@ -8,11 +8,22 @@ import { DaylightRig } from './daylightRig'
 import { TimeOfDayPanel } from './timePanel'
 import { playBillboard } from './billboard'
 import { batchStaticMeshes } from './batchMeshes'
+import { VolumetricStreetFog } from './volumetricStreetFog'
 
 const MODEL_URL = '/assets/models/ramen-shop.glb'
 const PIXEL_BUDGET = 1_650_000
 const HIGH_RES_PIXEL_BUDGET = 3_400_000
 const FRAME_INTERVAL = 1000 / 30
+const SIGN_ROUTES = new Map([
+  ['Storefront Navigation | Nav games', '/games/'],
+  ['Storefront Navigation | Sign games', '/games/'],
+  ['Storefront Navigation | Nav software', '/software/'],
+  ['Storefront Navigation | Sign software', '/software/'],
+  ['Storefront Navigation | Nav about', '/about/'],
+  ['Storefront Navigation | Sign about', '/about/'],
+  ['Storefront Navigation | Nav in development', '/in-development/'],
+  ['Storefront Navigation | Sign development', '/in-development/'],
+])
 
 export function initScene(container: HTMLElement, loading: {
   progress: (event: ProgressEvent) => void
@@ -83,18 +94,29 @@ export function initScene(container: HTMLElement, loading: {
 
     // Time-of-day subsystem: environment cycle + practical lights for the
     // emissive objects (lanterns, sign boxes, vending machine, fixtures).
-    const rig = new DaylightRig(scene, gltf.scene)
+    const fogMode = new URLSearchParams(window.location.search).get('fog')
+    const rig = new DaylightRig(scene, gltf.scene, fogMode === 'legacy')
     new TimeOfDayPanel(container, (minutes) => {
       rig.setMinutes(minutes)
     })
 
     playBillboard(gltf.scene)
-    batchStaticMeshes(gltf.scene)
+    const signLinks = new Map<THREE.Object3D, string>()
+    gltf.scene.traverse((object) => {
+      const name = object.userData.name ?? object.name
+      const href = SIGN_ROUTES.get(name)
+      if (!href) return
+      object.traverseVisible((part) => {
+        if (part instanceof THREE.Mesh) signLinks.set(part, href)
+      })
+    })
+    batchStaticMeshes(gltf.scene, new Set(signLinks.keys()))
     const idle = THREE.AnimationClip.findByName(gltf.animations, 'Storefront Pet Idle')
     const mixer = idle ? new THREE.AnimationMixer(gltf.scene) : undefined
     if (idle && mixer) mixer.clipAction(idle).play()
     startRendering(scene, { desktop: camera, mobilePortrait, mobileLandscape },
-      renderer, container, highResolution ? HIGH_RES_PIXEL_BUDGET : PIXEL_BUDGET, rig, loading.ready, mixer)
+      renderer, container, highResolution ? HIGH_RES_PIXEL_BUDGET : PIXEL_BUDGET,
+      rig, loading.ready, signLinks, fogMode, mixer)
   }, loading.progress, loading.error)
 }
 
@@ -106,15 +128,42 @@ function startRendering(
   pixelBudget: number,
   rig: DaylightRig,
   onFirstFrame: () => void,
+  signLinks: ReadonlyMap<THREE.Object3D, string>,
+  fogMode: string | null,
   mixer?: THREE.AnimationMixer,
 ): void {
   let camera = views.desktop
+  const canvas = renderer.domElement
+  const raycaster = new THREE.Raycaster()
+  const pointer = new THREE.Vector2()
+  const signMeshes = [...signLinks.keys()]
+  const signDestination = (event: MouseEvent) => {
+    const bounds = canvas.getBoundingClientRect()
+    pointer.set(
+      (event.clientX - bounds.left) * 2 / bounds.width - 1,
+      1 - (event.clientY - bounds.top) * 2 / bounds.height,
+    )
+    raycaster.setFromCamera(pointer, camera)
+    const [hit] = raycaster.intersectObjects(signMeshes, false)
+    return hit && signLinks.get(hit.object)
+  }
+  canvas.addEventListener('pointermove', (event) => {
+    canvas.style.cursor = signDestination(event) ? 'pointer' : ''
+  })
+  canvas.addEventListener('pointerleave', () => { canvas.style.cursor = '' })
+  canvas.addEventListener('click', (event) => {
+    const href = signDestination(event)
+    if (href) window.location.assign(href)
+  })
   const touch = window.matchMedia('(pointer: coarse)')
+  let lowFog = false
+  let volume: VolumetricStreetFog | undefined
   const update = () => {
     const w = container.clientWidth
     const h = container.clientHeight
     if (w === 0 || h === 0) return
     const aspect = w / h
+    lowFog = fogMode === 'low' || w <= 768 || touch.matches
     camera = views.desktop
     if (w <= 768 && aspect < 1) {
       camera = views.mobilePortrait ?? camera
@@ -146,8 +195,15 @@ function startRendering(
     const firstFrame = previousFrame === undefined
     if (previousFrame !== undefined) mixer?.update(Math.min((time - previousFrame) / 1000, 0.1))
     previousFrame = time
-    rig.updateAtmosphere(time / 1000)
-    renderer.render(scene, camera)
+    const seconds = time / 1000
+    rig.updateAtmosphere(seconds)
+    if (fogMode !== 'legacy' && fogMode !== 'off' && rig.fogStrength > 0 &&
+        (camera instanceof THREE.PerspectiveCamera || camera instanceof THREE.OrthographicCamera)) {
+      volume ??= new VolumetricStreetFog(renderer)
+      volume.render(renderer, scene, camera, rig.fogStrength, seconds, lowFog, rig.fogLights)
+    } else {
+      renderer.render(scene, camera)
+    }
     if (firstFrame) onFirstFrame()
   })
 }

@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Explore plugins and software from Sneeky Softworks." />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="stylesheet" href="/src/games.css" />
+    <link rel="stylesheet" href="/src/software.css" />
+    <title>Software | Sneeky Softworks</title>
+  </head>
+  <body class="software-page">
+    <header class="site-header">
+      <a href="/" class="brand" aria-label="Sneeky Softworks home">
+        <span aria-hidden="true"></span>
+      </a>
+      <nav aria-label="Site navigation">
+        <a href="/games/"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10c4 0 6 9 3 10-2 1-3-2-5-2H9c-2 0-3 3-5 2-3-1-1-10 3-10Z M8 9v4m-2-2h4m5 0h1m2 2h1"/></svg> Games</a>
+        <a class="current-page" href="/software/" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v11H5z M5 16l-3 4h20l-3-4"/></svg> Software</a>
+        <a href="/about/"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10V4l5 4h6l5-4v6c0 1 1 2 1 4 0 4-4 6-9 6s-9-2-9-6c0-2 1-3 1-4Zm4 4h1m6 0h1"/></svg> About</a>
+        <a href="/in-development/"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 6a5 5 0 0 0-6 6l-5 5a2.8 2.8 0 0 0 4 4l5-5a5 5 0 0 0 6-6l-3 2-3-3 2-3Z"/></svg> In Development</a>
+      </nav>
+      <button class="sign-in" type="button" data-coming-soon><span aria-hidden="true">⚙</span> Sign In</button>
+    </header>
+    <main>
+      <section class="games-hero" aria-labelledby="software-title">
+        <div class="hero-copy">
+          <p class="arcade-label">The Tool Shed</p>
+          <h1 id="software-title">Tools for making little things.</h1>
+          <p class="hero-description">Tiny utilities, creative experiments, and software that makes the work feel a bit more fun.</p>
+        </div>
+        <figure class="hero-art">
+          <img src="/assets/images/software-desk.webp" alt="A cat and rubber duck at a warmly lit desk with a glowing computer" width="1752" height="897" fetchpriority="high" />
+        </figure>
+      </section>
+      <section class="collection tool-collection" aria-labelledby="tools-title">
+        <h2 id="tools-title">Tools &amp; projects</h2>
+        <div class="collection-grid">
+          <article class="collection-card tool-palette">
+            <span class="palette-glitch" aria-hidden="true"></span>
+            <span class="tool-type">Finished</span>
+            <h3>Glitch</h3>
+            <p>A plugin for color shifts and digital distortion.</p>
+          </article>
+          <a class="collection-card tool-kioskguard" href="https://github.com/Sebastian-Brown/KioskGuard">
+            <span class="tool-type">WIP</span>
+            <h3>KioskGuard <span aria-hidden="true">↗</span></h3>
+            <p>Keep one app in focus while covering the other displays.</p>
+          </a>
+          <article class="collection-card tool-sprites">
+            <span class="tool-type">WIP</span>
+            <h3>Sneeky Desktop Fabric</h3>
+            <p>A Windows desktop and native media project.</p>
+          </article>
+        </div>
+      </section>
+      <section class="workshop tool-workbench" aria-labelledby="workbench-title">
+        <div class="paper">
+          <h2 id="workbench-title">On the workbench</h2>
+          <p>A peek at what we’re exploring and building.</p>
+        </div>
+        <div class="workshop-note">
+          <h3>Open-source &amp; free experiments</h3>
+          <p>Downloads will appear here as tools become available.</p>
+        </div>
+      </section>
+    </main>
+    <footer class="games-footer">
+      <img src="/assets/images/arcade-footer.webp" alt="" width="2172" height="724" />
+    </footer>
+    <div class="games-notice" role="status" aria-live="polite"></div>
+    <script type="module" src="/src/games.ts"></script>
+  </body>
+</html>

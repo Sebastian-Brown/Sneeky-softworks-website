@@ -13,16 +13,18 @@ export class DaylightRig {
   private readonly hemi = new THREE.HemisphereLight(0xffffff, 0x444444, 1)
   private readonly sun = new THREE.DirectionalLight(0xffffff, 1)
   private readonly nightFog = new THREE.FogExp2(0x3a4960, 0)
-  private readonly streetMist: StreetMist
+  private readonly streetMist?: StreetMist
   private readonly streetFill = new THREE.DirectionalLight()
   private readonly sideFill = new THREE.DirectionalLight()
   private readonly practicals: Array<{ light: THREE.Light; baseIntensity: number; daylightFraction: number }>
   private readonly emissives: EmissiveMaterialEntry[]
   private readonly roomFills: THREE.PointLight[] = []
+  readonly fogLights: (THREE.PointLight | THREE.SpotLight)[] = []
+  fogStrength = 0
 
-  constructor(scene: THREE.Scene, modelRoot: THREE.Object3D) {
+  constructor(scene: THREE.Scene, modelRoot: THREE.Object3D, legacyFog = false) {
     this.scene = scene
-    this.streetMist = new StreetMist(scene)
+    if (legacyFog) this.streetMist = new StreetMist(scene)
     scene.add(this.hemi)
     scene.add(this.sun)
     // A fixed, oblique light keeps local shadows under eaves and around trim
@@ -44,12 +46,12 @@ export class DaylightRig {
     shadow.camera.updateProjectionMatrix()
     shadow.normalBias = 0.015
     shadow.bias = -0.00015
-    shadow.radius = 3
-    shadow.intensity = 0.72
+    shadow.radius = 4.5
+    shadow.intensity = 0.66
     shadow.autoUpdate = false
     shadow.needsUpdate = true
     scene.add(this.streetFill.target)
-    this.sideFill.position.set(0.12, 0.46, 1)
+    this.sideFill.position.set(-0.15, 0.48, 1)
     scene.add(this.streetFill, this.sideFill)
 
     modelRoot.traverse((object) => {
@@ -68,6 +70,9 @@ export class DaylightRig {
     const { lights } = findPracticalLights(modelRoot)
     this.practicals = lights.map(({ object, light }) => {
       light.castShadow = false
+      if (light instanceof THREE.PointLight && light.name.startsWith('Practical_Red lantern')) {
+        this.fogLights.push(light)
+      }
       if (light instanceof THREE.SpotLight) {
         // Aim the spot straight down in the object's local space so it
         // stays attached while the object transforms.
@@ -83,6 +88,7 @@ export class DaylightRig {
       if (typeof name !== 'string' || !name.startsWith('Fixture Light | ')) return
       const roof = name.startsWith('Fixture Light | Ramen Roof Sign')
       const baseIntensity = object.intensity * 0.015
+      if (name.toLowerCase().startsWith('fixture light | streetlight')) this.fogLights.unshift(object)
       const rightRoom = name.startsWith('Fixture Light | Right Building Interior')
       const windowRoom = rightRoom ||
         name.startsWith('Fixture Light | Left Building Interior') ||
@@ -141,24 +147,32 @@ export class DaylightRig {
   setMinutes(minutes: number): void {
     const env = sampleEnvironment(minutes)
     this.scene.background = env.background
-    this.nightFog.density = 0.0026 * env.fogStrength
-    this.scene.fog = env.fogStrength > 0 ? this.nightFog : null
-    this.streetMist.setStrength(env.fogStrength)
-
-    this.hemi.color.copy(env.hemiSky)
-    this.hemi.groundColor.copy(env.hemiGround)
-    this.hemi.intensity = env.hemiIntensity
-
-    this.sun.position.copy(env.sunDirection)
-    this.sun.color.copy(env.sunColor)
-    this.sun.intensity = env.sunIntensity * 0.82
+    this.fogStrength = env.fogStrength
+    if (this.streetMist) {
+      this.nightFog.density = 0.0026 * env.fogStrength
+      this.scene.fog = env.fogStrength > 0 ? this.nightFog : null
+      this.streetMist.setStrength(env.fogStrength)
+    }
 
     const glow = env.nightFactor
     const daylight = 1 - glow
-    this.streetFill.color.setHex(0xdfebff).lerp(env.hemiSky, 0.15 + daylight * 0.43)
-    this.streetFill.intensity = 0.16 + daylight * 0.64
-    this.sideFill.color.setHex(0xc7d9ff).lerp(env.sunColor, daylight * 0.2)
-    this.sideFill.intensity = 0.10 + daylight * 0.20
+    this.hemi.color.copy(env.hemiSky)
+    this.hemi.groundColor.copy(env.hemiGround)
+    this.hemi.intensity = env.hemiIntensity * (0.86 + glow * 0.14)
+
+    // Warm direct light travels through the day. Tame the grazing angles so
+    // they cannot overpower the eave shadows and reflected light.
+    const elevation = THREE.MathUtils.smoothstep(env.sunDirection.y, 0.02, 0.75)
+    this.sun.position.copy(env.sunDirection)
+    this.sun.color.copy(env.sunColor)
+    this.sun.intensity = env.sunIntensity * (0.60 + 0.14 * elevation + 0.06 * glow)
+
+    // The cached, oblique light holds the trim and roof detail. The opposing
+    // fill keeps the visible side wall readable as the direct light moves.
+    this.streetFill.color.setHex(0xb8cafa).lerp(env.sunColor, daylight * 0.68)
+    this.streetFill.intensity = 0.15 + daylight * 0.73
+    this.sideFill.color.setHex(0xafc9ee).lerp(env.hemiSky, daylight * 0.38)
+    this.sideFill.intensity = 0.12 + daylight * 0.22
     for (const entry of this.practicals) {
       const intensity = entry.daylightFraction + (1 - entry.daylightFraction) * glow
       entry.light.intensity = entry.baseIntensity * intensity
@@ -171,6 +185,6 @@ export class DaylightRig {
   }
 
   updateAtmosphere(seconds: number): void {
-    this.streetMist.update(seconds)
+    this.streetMist?.update(seconds)
   }
 }

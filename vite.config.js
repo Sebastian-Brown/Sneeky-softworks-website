@@ -142,6 +142,20 @@ function refreshStorefront() {
 
 export default defineConfig({
   plugins: [refreshStorefront()],
+  optimizeDeps: {
+    entries: ['index.html'],
+  },
+  build: {
+    rolldownOptions: {
+      input: [
+        join(root, 'index.html'),
+        join(root, 'games/index.html'),
+        join(root, 'software/index.html'),
+        join(root, 'about/index.html'),
+        join(root, 'in-development/index.html'),
+      ],
+    },
+  },
   server: {
     watch: {
       // The dedicated watcher reloads only after a validated export is ready.
