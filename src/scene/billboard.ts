@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 
-const VIDEO_URL = '/assets/video/billboard-demo.mp4'
+const VIDEO_URL = `${import.meta.env.BASE_URL}assets/video/billboard-demo.mp4`
 const SCREEN_MATERIAL = 'Emission | Billboard video screen'
 
 export function playBillboard(root: THREE.Object3D): void {

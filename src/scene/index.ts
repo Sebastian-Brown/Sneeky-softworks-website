@@ -12,21 +12,21 @@ import { VolumetricStreetFog } from './volumetricStreetFog'
 import { createBlossomDrift } from './blossomDrift'
 import { createStorefrontBreeze } from './storefrontBreeze'
 
-const MODEL_URL = '/assets/models/ramen-shop.glb'
+const MODEL_URL = `${import.meta.env.BASE_URL}assets/models/ramen-shop.glb`
 const PIXEL_BUDGET = 1_650_000
 const HIGH_RES_PIXEL_BUDGET = 3_400_000
 const FRAME_INTERVAL = 1000 / 30
 const SIGN_ROUTES = new Map([
   ['Storefront Navigation | Nav signin', 'coming-soon'],
   ['Storefront Navigation | Sign signin', 'coming-soon'],
-  ['Storefront Navigation | Nav games', '/games/'],
-  ['Storefront Navigation | Sign games', '/games/'],
-  ['Storefront Navigation | Nav software', '/software/'],
-  ['Storefront Navigation | Sign software', '/software/'],
-  ['Storefront Navigation | Nav about', '/about/'],
-  ['Storefront Navigation | Sign about', '/about/'],
-  ['Storefront Navigation | Nav in development', '/in-development/'],
-  ['Storefront Navigation | Sign development', '/in-development/'],
+  ['Storefront Navigation | Nav games', 'games/'],
+  ['Storefront Navigation | Sign games', 'games/'],
+  ['Storefront Navigation | Nav software', 'software/'],
+  ['Storefront Navigation | Sign software', 'software/'],
+  ['Storefront Navigation | Nav about', 'about/'],
+  ['Storefront Navigation | Sign about', 'about/'],
+  ['Storefront Navigation | Nav in development', 'in-development/'],
+  ['Storefront Navigation | Sign development', 'in-development/'],
 ])
 
 export function initScene(container: HTMLElement, loading: {
@@ -165,7 +165,7 @@ function startRendering(
   canvas.addEventListener('click', (event) => {
     const href = signDestination(event)
     if (href === 'coming-soon') onSignIn()
-    else if (href) window.location.assign(href)
+    else if (href) window.location.assign(import.meta.env.BASE_URL + href)
   })
   const touch = window.matchMedia('(pointer: coarse)')
   let lowFog = false
