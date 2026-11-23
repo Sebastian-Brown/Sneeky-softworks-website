@@ -4,15 +4,26 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/src/styles.css" />
     <title>Sneeky Softworks</title>
   </head>
   <body>
     <div id="app">
-      <!-- Temporary landing page: replaced by the interactive scene once it exists. -->
-      <main class="landing">
-        <h1>Sneeky Softworks</h1>
-        <p>The website is under development.</p>
-      </main>
+      <div class="scene-status">
+        <div class="loading-card">
+          <div class="loading-mascot" aria-hidden="true">
+            <span class="loading-steam"></span>
+            <span class="loading-cat"><i></i></span>
+            <span class="loading-bowl"></span>
+          </div>
+          <div role="status" aria-live="polite">
+            <h1>Opening the ramen shop</h1>
+            <p>Getting your seat ready.</p>
+          </div>
+          <progress aria-label="Downloading the 3D storefront" max="100"></progress>
+          <button type="button" hidden>Try again</button>
+        </div>
+      </div>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>

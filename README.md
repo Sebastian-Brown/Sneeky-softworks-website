@@ -21,7 +21,11 @@ npm install        # install dependencies
 npm run dev        # start local development server → http://localhost:5173
 ```
 
+With Blender on your PATH, save the **Storefront** scene while Vite is running. Vite checks `blender-source.local/ramen_shop_scene_Qwen_naming.blend` and the `.blend1` copy if it is being used for editing, exports the newer save, and reloads the open page once the map is ready. A manual browser refresh also checks for a newer save. On Windows PowerShell, `npm.cmd run dev` also works.
+
 ## Production build
+
+The site loads `/assets/models/ramen-shop.glb`, exported from the **Storefront** scene in `blender-source.local/ramen_shop_scene_Qwen_naming.blend`. If you haven't already refreshed the map in development, run `npm run export:scene` with Blender on your PATH before building for deployment.
 
 ```bash
 npm run build      # type-check, then build the static site into dist/

@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "export:scene": "blender -b blender-source.local/ramen_shop_scene_Qwen_naming.blend --python-exit-code 1 --python scripts/export_storefront.py",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
