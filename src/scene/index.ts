@@ -9,12 +9,16 @@ import { TimeOfDayPanel } from './timePanel'
 import { playBillboard } from './billboard'
 import { batchStaticMeshes } from './batchMeshes'
 import { VolumetricStreetFog } from './volumetricStreetFog'
+import { createBlossomDrift } from './blossomDrift'
+import { createStorefrontBreeze } from './storefrontBreeze'
 
 const MODEL_URL = '/assets/models/ramen-shop.glb'
 const PIXEL_BUDGET = 1_650_000
 const HIGH_RES_PIXEL_BUDGET = 3_400_000
 const FRAME_INTERVAL = 1000 / 30
 const SIGN_ROUTES = new Map([
+  ['Storefront Navigation | Nav signin', 'coming-soon'],
+  ['Storefront Navigation | Sign signin', 'coming-soon'],
   ['Storefront Navigation | Nav games', '/games/'],
   ['Storefront Navigation | Sign games', '/games/'],
   ['Storefront Navigation | Nav software', '/software/'],
@@ -29,7 +33,7 @@ export function initScene(container: HTMLElement, loading: {
   progress: (event: ProgressEvent) => void
   ready: () => void
   error: (error: unknown) => void
-}): void {
+}, onSignIn: () => void): void {
   const scene = new THREE.Scene()
   scene.background = new THREE.Color(0x181c22)
 
@@ -110,13 +114,18 @@ export function initScene(container: HTMLElement, loading: {
         if (part instanceof THREE.Mesh) signLinks.set(part, href)
       })
     })
-    batchStaticMeshes(gltf.scene, new Set(signLinks.keys()))
+    const updateBlossomDrift = createBlossomDrift(scene, gltf.scene)
+    const breeze = createStorefrontBreeze(scene, gltf.scene)
+    batchStaticMeshes(gltf.scene, new Set([...signLinks.keys(), ...breeze.unbatched]))
     const idle = THREE.AnimationClip.findByName(gltf.animations, 'Storefront Pet Idle')
     const mixer = idle ? new THREE.AnimationMixer(gltf.scene) : undefined
     if (idle && mixer) mixer.clipAction(idle).play()
     startRendering(scene, { desktop: camera, mobilePortrait, mobileLandscape },
       renderer, container, highResolution ? HIGH_RES_PIXEL_BUDGET : PIXEL_BUDGET,
-      rig, loading.ready, signLinks, fogMode, mixer)
+      rig, loading.ready, signLinks, onSignIn, fogMode, (seconds) => {
+        updateBlossomDrift?.(seconds)
+        breeze.update(seconds)
+      }, mixer)
   }, loading.progress, loading.error)
 }
 
@@ -129,7 +138,9 @@ function startRendering(
   rig: DaylightRig,
   onFirstFrame: () => void,
   signLinks: ReadonlyMap<THREE.Object3D, string>,
+  onSignIn: () => void,
   fogMode: string | null,
+  updateBreeze: (seconds: number) => void,
   mixer?: THREE.AnimationMixer,
 ): void {
   let camera = views.desktop
@@ -153,7 +164,8 @@ function startRendering(
   canvas.addEventListener('pointerleave', () => { canvas.style.cursor = '' })
   canvas.addEventListener('click', (event) => {
     const href = signDestination(event)
-    if (href) window.location.assign(href)
+    if (href === 'coming-soon') onSignIn()
+    else if (href) window.location.assign(href)
   })
   const touch = window.matchMedia('(pointer: coarse)')
   let lowFog = false
@@ -196,6 +208,7 @@ function startRendering(
     if (previousFrame !== undefined) mixer?.update(Math.min((time - previousFrame) / 1000, 0.1))
     previousFrame = time
     const seconds = time / 1000
+    updateBreeze(seconds)
     rig.updateAtmosphere(seconds)
     if (fogMode !== 'legacy' && fogMode !== 'off' && rig.fogStrength > 0 &&
         (camera instanceof THREE.PerspectiveCamera || camera instanceof THREE.OrthographicCamera)) {

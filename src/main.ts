@@ -3,6 +3,7 @@
 // mounts the 3D scene (src/scene) into it and owns all runtime initialization.
 
 import { initScene } from './scene/index.ts'
+import { showComingSoon } from './games'
 
 const app = document.querySelector<HTMLElement>('#app')
 const loading = app?.querySelector<HTMLElement>('.scene-status')
@@ -29,5 +30,5 @@ if (app && loading && title && detail && progress && retry) {
       progress.hidden = true
       retry.hidden = false
     },
-  })
+  }, showComingSoon)
 }
