@@ -1,54 +1,45 @@
 # Sneeky Softworks Website
 
-Official website for [Sneeky Softworks](https://sneekysoftworks.com), an independent game and software publisher.
+The Sneeky Softworks studio site opens on an interactive isometric ramen shop rendered in Three.js. The storefront signs lead to Games, Software, About, and In Development. The scene switches between desktop and mobile views, and its time slider lets visitors preview the lighting throughout the day.
 
-The final site will be an interactive isometric ramen shop scene rendered with Three.js in the browser. The current page is a temporary placeholder landing page while that work is underway.
+**Live site** · [Sneeky Softworks on GitHub Pages](https://sebastian-brown.github.io/Sneeky-softworks-website/)
 
-## Technology
+## Run locally
 
-- **Vite** — dev server, HMR, and production build
-- **TypeScript** — type-checked source (vanilla modules, no framework)
-- **Three.js** — installed for the upcoming 3D scene; not yet used in code
+Use Node.js 24, which matches the deployment workflow.
 
-The stack intentionally stays lightweight: a graphics-heavy site benefits from minimal framework overhead around the renderer.
-
-## Getting started
-
-Prerequisites: Node.js (current LTS or newer).
-
-```bash
-npm install        # install dependencies
-npm run dev        # start local development server → http://localhost:5173
+```sh
+npm ci
+npm run dev
 ```
 
-With Blender on your PATH, save the **Storefront** scene while Vite is running. Vite checks `blender-source.local/ramen_shop_scene_Qwen_naming.blend` and the `.blend1` copy if it is being used for editing, exports the newer save, and reloads the open page once the map is ready. A manual browser refresh also checks for a newer save. On Windows PowerShell, `npm.cmd run dev` also works.
+Open [localhost:5173](http://localhost:5173/). In Windows PowerShell, use `npm.cmd` in place of `npm` if script execution is blocked. The repository includes the exported storefront model, so a fresh checkout can run without Blender.
 
-## Production build
+## Edit the storefront
 
-The site loads `/assets/models/ramen-shop.glb`, exported from the **Storefront** scene in `blender-source.local/ramen_shop_scene_Qwen_naming.blend`. If you haven't already refreshed the map in development, run `npm run export:scene` with Blender on your PATH before building for deployment.
+1. Put `ramen_shop_scene_Qwen_naming.blend` in `blender-source.local/` and make sure `blender` is on your PATH.
+2. Run the dev server and save your scene in Blender. Vite checks the timestamps of the `.blend` and `.blend1` files and, when it finds a newer save, exports it and reloads the browser. Refreshing the storefront also checks for a newer save.
+3. To export the main `.blend` file manually, run `npm run export:scene`. The exporter reads the Blender scene named **Storefront** and writes `public/assets/models/ramen-shop.glb`.
+4. Commit the updated GLB when you want the scene change included in the next deployment. The Blender source folder is ignored by Git.
 
-```bash
-npm run build      # type-check, then build the static site into dist/
-npm run preview    # serve the production build locally to verify it
+## Build and deploy
+
+```sh
+npm run build
+npm run preview
 ```
 
-The output is a fully static site (`dist/`) with no server-side component. It can be deployed as-is; the intended host is Cloudflare Pages (not yet configured).
+The build command runs TypeScript checks and uses Vite to build the five HTML entry points into `dist/`. GitHub Pages serves this static output. The About contact form opens an email draft in the visitor’s mail app.
 
-## Project structure
+The [GitHub Pages workflow](.github/workflows/deploy.yml) runs on pushes to `main` and can also be started manually from [GitHub Actions](https://github.com/Sebastian-Brown/Sneeky-softworks-website/actions/workflows/deploy.yml). It sets the Vite base path from the Pages configuration, then builds and publishes `dist/` using the committed assets.
 
-```
-index.html              HTML entry point (#app container)
-src/
-  main.ts               Bootstrap entry point (scene/UI initialization will live here)
-  styles.css            Global styles
-  components/           Reusable UI/navigation modules (future)
-  scene/                3D scene systems, Three.js (future)
-  content/              Site content/data (future)
-public/                 Static assets served as-is at the site root
-  favicon.svg
-  assets/models/        Future GLB/GLTF models (served at /assets/models/)
-  assets/textures/      Future textures/images (served at /assets/textures/)
-docs/                   Project documentation
-```
+## Project layout
 
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the intended architecture.
+| Path | Purpose |
+| --- | --- |
+| `index.html` and `src/main.ts` | Storefront entry point |
+| `games/`, `software/`, `about/`, `in-development/` | Interior page entry points |
+| `src/scene/` | Three.js renderer, cameras, lighting, fog, breeze, and billboard |
+| `public/assets/` | Exported storefront GLB, page artwork, and billboard video |
+| `scripts/export_storefront.py` | Blender-to-GLB exporter |
+| `vite.config.js` | HTML build entries and local Blender save watcher |
